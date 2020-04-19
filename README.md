@@ -1,1 +1,1 @@
-MyProject3
+VR Template
