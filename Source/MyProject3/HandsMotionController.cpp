@@ -112,3 +112,8 @@ void AHandsMotionController::FDisableTeleporter()
 		this->ArcEndPoint->SetVisibility(false, true);
 	}
 }
+
+FVector AHandsMotionController::FGetTeleportDestination()
+{
+	return this->TeleportCylinder->GetComponentLocation();
+}

@@ -49,6 +49,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Exposed")
 	void FDisableTeleporter();
 
+	UFUNCTION(BlueprintCallable, Category = "Exposed")
+	FVector FGetTeleportDestination();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
