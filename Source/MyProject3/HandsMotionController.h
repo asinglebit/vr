@@ -28,6 +28,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Exposed)
 	TArray<USplineMeshComponent*> ASplineMeshes;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Exposed)
+	bool BIsTeleporterActive;
+
 	UFUNCTION(BlueprintCallable, Category = "Exposed")
 	void FClearArc();
 
