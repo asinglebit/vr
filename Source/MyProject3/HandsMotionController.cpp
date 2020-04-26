@@ -5,6 +5,7 @@
 #include "Components/SceneComponent.h"
 #include "Components/SplineComponent.h"
 #include "Components/SplineMeshComponent.h"
+#include "UObject/UObjectGlobals.h"
 
 #include "HandsMotionController.h"
 
@@ -14,6 +15,11 @@ AHandsMotionController::AHandsMotionController()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> SMesh(TEXT("/Game/Meshes/BeamMesh.BeamMesh"));
+	static ConstructorHelpers::FObjectFinder<UMaterialInterface> SMaterial(TEXT("/Game/Materials/M_SplineArcMat.M_SplineArcMat"));
+
+	this->Mesh = SMesh.Object;
+	this->Material = SMaterial.Object;
 }
 
 // Called when the game starts or when spawned
@@ -24,6 +30,8 @@ void AHandsMotionController::BeginPlay()
 	// Initialize variables
 
 	this->FTeleportLaunchVelocity = 900.0f;
+	this->BIsTeleporterActive = false;
+	this->BIsValidTeleportDestination = false;
 
 	// Get components
 
@@ -48,39 +56,6 @@ void AHandsMotionController::BeginPlay()
 	// Set construction logic
 
 	this->TeleportCylinder->SetVisibility(true, true);
-	//this->SplineMeshes = [];
-
-	//for (int32 i = 0; i < mSplineComponent->GetNumSplinePoints() - 1; i++)
-	//{
-	//	USplineMeshComponent* SplineMesh = ConstructObject<USplineMeshComponent>(USplineMeshComponent::StaticClass(), this);
-
-	//	SplineMesh->bCreatedByConstructionScript = true;
-	//	SplineMesh->SetMobility(EComponentMobility::Movable);
-	//	SplineMesh->AttachParent = mSplineComponent;
-
-	//	//Set the color!
-	//	UMaterialInstanceDynamic* dynamicMat = UMaterialInstanceDynamic::Create(mSplineMeshMaterial, NULL);
-	//	dynamicMat->SetVectorParameterValue(TEXT("Color"), FLinearColor(mSegments[i].mColor));
-
-	//	SplineMesh->bCastDynamicShadow = false;
-	//	SplineMesh->SetStaticMesh(mGridMesh);
-	//	SplineMesh->SetMaterial(0, dynamicMat);
-
-	//	//Width of the mesh 
-	//	SplineMesh->SetStartScale(FVector2D(50, 50));
-	//	SplineMesh->SetEndScale(FVector2D(50, 50));
-
-	//	FVector pointLocationStart, pointTangentStart, pointLocationEnd, pointTangentEnd;
-	//	mSplineComponent->GetLocalLocationAndTangentAtSplinePoint(i, pointLocationStart, pointTangentStart);
-	//	mSplineComponent->GetLocalLocationAndTangentAtSplinePoint(i + 1, pointLocationEnd, pointTangentEnd);
-
-	//	SplineMesh->SetStartAndEnd(pointLocationStart, pointTangentStart, pointLocationEnd, pointTangentEnd);
-	//}
-
-	//RegisterAllComponents();
-	
-	//this->ArcSpline->GetNumberOfSplinePoints();
-
 }
 
 void AHandsMotionController::Tick(float DeltaTime)
@@ -116,4 +91,49 @@ void AHandsMotionController::FDisableTeleporter()
 FVector AHandsMotionController::FGetTeleportDestination()
 {
 	return this->TeleportCylinder->GetComponentLocation();
+}
+
+void AHandsMotionController::FUpdateArcEndpoint(bool IsValidLocationFound, FVector NewLocation)
+{
+	const bool isVisible = IsValidLocationFound && this->BIsTeleporterActive;
+	this->ArcEndPoint->SetVisibility(isVisible, false);
+	this->ArcEndPoint->SetWorldLocation(NewLocation);
+}
+
+void AHandsMotionController::FUpdateArcSpline(bool IsValidLocationFound, TArray<FVector> SplinePoints)
+{
+	if (!IsValidLocationFound) {
+		SplinePoints.Empty();
+
+		const FVector MotionControllerLocation = this->MotionController->GetComponentLocation();
+		const FVector MotionControllerForwardVector = this->MotionController->GetForwardVector();
+
+		SplinePoints.Add(MotionControllerLocation);
+		SplinePoints.Add(MotionControllerForwardVector * 20.0f + MotionControllerLocation);
+	}
+
+	for (auto SplinePoint : SplinePoints) {
+		this->ArcSpline->AddSplinePoint(SplinePoint, ESplineCoordinateSpace::Local, true);
+	}
+
+	this->ArcSpline->SetSplinePointType(SplinePoints.IndexOfByKey(SplinePoints.Last()), ESplinePointType::CurveClamped, true);
+
+	const int lastIndex = this->ArcSpline->GetNumberOfSplinePoints() - 1;
+	for (int32 i = 0; i < lastIndex; ++i) {
+		USplineMeshComponent* SplineMesh = NewObject<USplineMeshComponent>(this);
+		SplineMesh->RegisterComponent();
+		SplineMesh->CreationMethod = EComponentCreationMethod::UserConstructionScript;
+		SplineMesh->SetMobility(EComponentMobility::Movable);
+		SplineMesh->bCastDynamicShadow = false;
+		SplineMesh->SetStartScale(FVector2D(4.0f, 4.0f));
+		SplineMesh->SetEndScale(FVector2D(4.0f, 4.0f));
+		SplineMesh->SetStaticMesh(this->Mesh);
+		SplineMesh->SetMaterial(0, this->Material);
+		const FVector StartPosition = SplinePoints[i];
+		const FVector StartTangent = this->ArcSpline->GetTangentAtSplinePoint(i, ESplineCoordinateSpace::Local);
+		const FVector EndPosition = SplinePoints[i + 1];
+		const FVector EndTangent = this->ArcSpline->GetTangentAtSplinePoint(i + 1, ESplineCoordinateSpace::Local);
+		SplineMesh->SetStartAndEnd(StartPosition, StartTangent, EndPosition, EndTangent, true);
+		this->ASplineMeshes.Add(SplineMesh);
+	}
 }

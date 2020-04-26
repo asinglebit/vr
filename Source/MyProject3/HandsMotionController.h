@@ -1,13 +1,15 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
-
+#include "EngineUtils.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "InputCoreTypes.h"
+#include "Components/SceneComponent.h"
 #include "MotionControllerComponent.h"
 #include "Components/SplineComponent.h"
 #include "Components/SplineMeshComponent.h"
+#include "UObject/UObjectGlobals.h"
 
 #include "HandsMotionController.generated.h"
 
@@ -15,7 +17,12 @@ UCLASS()
 class MYPROJECT3_API AHandsMotionController : public AActor
 {
 	GENERATED_BODY()
-	
+
+private:
+
+	UStaticMesh* Mesh;
+	UMaterialInterface* Material;
+
 public:	
 	// Sets default values for this actor's properties
 	AHandsMotionController();
@@ -52,6 +59,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Exposed")
 	FVector FGetTeleportDestination();
 
+	UFUNCTION(BlueprintCallable, Category = "Exposed")
+	void FUpdateArcEndpoint(bool IsValidLocationFound, FVector NewLocation);
+
+	UFUNCTION(BlueprintCallable, Category = "Exposed")
+	void FUpdateArcSpline(bool IsValidLocationFound, TArray<FVector> SplinePoints);
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -59,5 +72,4 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
 };
