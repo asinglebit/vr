@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "InputCoreTypes.h"
+#include "MotionControllerComponent.h"
 #include "Components/SplineComponent.h"
 #include "Components/SplineMeshComponent.h"
 
@@ -24,15 +25,29 @@ public:
 
 	USceneComponent* TeleportCylinder;
 	USplineComponent* ArcSpline;
+	USceneComponent* ArcEndPoint;
+	UMotionControllerComponent* MotionController;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Exposed)
 	TArray<USplineMeshComponent*> ASplineMeshes;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Exposed)
+	float FTeleportLaunchVelocity;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Exposed)
 	bool BIsTeleporterActive;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Exposed)
+	bool BIsValidTeleportDestination;
 
 	UFUNCTION(BlueprintCallable, Category = "Exposed")
 	void FClearArc();
+
+	UFUNCTION(BlueprintCallable, Category = "Exposed")
+	void FActivateTeleporter();
+
+	UFUNCTION(BlueprintCallable, Category = "Exposed")
+	void FDisableTeleporter();
 
 protected:
 	// Called when the game starts or when spawned

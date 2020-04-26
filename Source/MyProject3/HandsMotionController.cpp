@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "EngineUtils.h"
+#include "MotionControllerComponent.h"
 #include "Components/SceneComponent.h"
 #include "Components/SplineComponent.h"
 #include "Components/SplineMeshComponent.h"
@@ -20,6 +21,10 @@ void AHandsMotionController::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// Initialize variables
+
+	this->FTeleportLaunchVelocity = 900.0f;
+
 	// Get components
 
 	auto components = this->GetComponents();
@@ -31,6 +36,12 @@ void AHandsMotionController::BeginPlay()
 		}
 		else if (ComponentName == "ArcSpline") {
 			this->ArcSpline = CastChecked<USplineComponent>(component);
+		}
+		else if (ComponentName == "MotionController") {
+			this->MotionController = CastChecked<UMotionControllerComponent>(component);
+		}
+		else if (ComponentName == "ArcEndPoint") {
+			this->ArcEndPoint = CastChecked<USceneComponent>(component);
 		}
 	}
 
@@ -72,14 +83,12 @@ void AHandsMotionController::BeginPlay()
 
 }
 
-// Called every frame
 void AHandsMotionController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
 }
 
-// Called every frame
 void AHandsMotionController::FClearArc()
 {
 	this->ArcSpline->ClearSplinePoints(true);
@@ -87,4 +96,19 @@ void AHandsMotionController::FClearArc()
 		component->DestroyComponent();
 	}
 	this->ASplineMeshes.Empty();
+}
+
+void AHandsMotionController::FActivateTeleporter()
+{
+	this->BIsTeleporterActive = true;
+	this->TeleportCylinder->SetVisibility(true, true);
+}
+
+void AHandsMotionController::FDisableTeleporter()
+{
+	if (this->BIsTeleporterActive) {
+		this->BIsTeleporterActive = false;
+		this->TeleportCylinder->SetVisibility(false, true);
+		this->ArcEndPoint->SetVisibility(false, true);
+	}
 }
