@@ -22,7 +22,7 @@ APlayerMotionController::APlayerMotionController()
 void APlayerMotionController::BeginPlay()
 {
 	Super::BeginPlay();
-	UHeadMountedDisplayFunctionLibrary::SetTrackingOrigin(EHMDTrackingOrigin::Floor);
+	//UHeadMountedDisplayFunctionLibrary::SetTrackingOrigin(EHMDTrackingOrigin::Floor);
 
 	// Spawn left hand
 	/*{

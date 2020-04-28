@@ -6,9 +6,10 @@
 #include "GameFramework/Actor.h"
 #include "InputCoreTypes.h"
 #include "Components/SceneComponent.h"
-#include "MotionControllerComponent.h"
 #include "Components/SplineComponent.h"
 #include "Components/SplineMeshComponent.h"
+#include "MotionControllerComponent.h"
+#include "PhysicsEngine/PhysicsHandleComponent.h"
 #include "UObject/UObjectGlobals.h"
 
 #include "HandsMotionController.generated.h"
@@ -33,7 +34,8 @@ public:
 	USceneComponent* TeleportCylinder;
 	USplineComponent* ArcSpline;
 	USceneComponent* ArcEndPoint;
-	UMotionControllerComponent* MotionController;
+	UMotionControllerComponent* AMotionController;
+	UPhysicsHandleComponent* APhysicsHandle;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Exposed)
 	TArray<USplineMeshComponent*> ASplineMeshes;
@@ -46,6 +48,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Exposed)
 	bool BIsValidTeleportDestination;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Exposed)
+	bool BLastFrameValidDestination;
 
 	UFUNCTION(BlueprintCallable, Category = "Exposed")
 	void FClearArc();
@@ -64,6 +69,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Exposed")
 	void FUpdateArcSpline(bool IsValidLocationFound, TArray<FVector> SplinePoints);
+
+	UFUNCTION(BlueprintCallable, Category = "Exposed")
+	bool FTraceTeleportDestination(TArray<FVector> & TracePoints, FVector & NavMeshLocation, FVector & TraceLocation);
 
 protected:
 	// Called when the game starts or when spawned
