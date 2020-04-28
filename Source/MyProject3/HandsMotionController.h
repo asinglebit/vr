@@ -34,6 +34,7 @@ public:
 	USceneComponent* TeleportCylinder;
 	USplineComponent* ArcSpline;
 	USceneComponent* ArcEndPoint;
+	//USphereComponent* GrabSphere;
 	UMotionControllerComponent* AMotionController;
 	UPhysicsHandleComponent* APhysicsHandle;
 
@@ -62,7 +63,10 @@ public:
 	void FDisableTeleporter();
 
 	UFUNCTION(BlueprintCallable, Category = "Exposed")
-	FVector FGetTeleportDestination();
+	void FGetActorNearHand();
+
+	UFUNCTION(BlueprintCallable, Category = "Exposed")
+	void FGetTeleportDestination();
 
 	UFUNCTION(BlueprintCallable, Category = "Exposed")
 	void FUpdateArcEndpoint(bool IsValidLocationFound, FVector NewLocation);

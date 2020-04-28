@@ -1,5 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
+#include "HandsMotionController.h"
+
 #include "EngineUtils.h"
 #include "Components/SceneComponent.h"
 #include "Components/SplineComponent.h"
@@ -10,8 +12,6 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/KismetMathLibrary.h"
-
-#include "HandsMotionController.h"
 #include "NavigationSystem.h"
 
 // Sets default values
@@ -19,6 +19,9 @@ AHandsMotionController::AHandsMotionController()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bStartWithTickEnabled = true;
+	PrimaryActorTick.bTickEvenWhenPaused = true;
+	PrimaryActorTick.TickGroup = TG_PrePhysics;
 
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> SMesh(TEXT("/Game/Meshes/BeamMesh.BeamMesh"));
 	static ConstructorHelpers::FObjectFinder<UMaterialInterface> SMaterial(TEXT("/Game/Materials/M_SplineArcMat.M_SplineArcMat"));
@@ -47,6 +50,9 @@ void AHandsMotionController::BeginPlay()
 		if (ComponentName == "TeleportCylinder") {
 			this->TeleportCylinder = CastChecked<USceneComponent>(component);
 		}
+		//else if (ComponentName == "GrabSphere") {
+		//	this->GrabSphere = CastChecked<USphereComponent>(component);
+		//}
 		else if (ComponentName == "ArcSpline") {
 			this->ArcSpline = CastChecked<USplineComponent>(component);
 		}
@@ -71,51 +77,52 @@ void AHandsMotionController::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	this->FClearArc();
-	if (!this->BIsTeleporterActive) return;
+	if (this->BIsTeleporterActive) {
 
-	// Call
-	TArray<FVector> TracePoints;
-	FVector NavMeshLocation;
-	FVector TraceLocation;
-	const bool IsHit = this->FTraceTeleportDestination(TracePoints, NavMeshLocation, TraceLocation);
+		// Call
+		TArray<FVector> TracePoints;
+		FVector NavMeshLocation;
+		FVector TraceLocation;
+		const bool IsHit = this->FTraceTeleportDestination(TracePoints, NavMeshLocation, TraceLocation);
 
-	this->BIsValidTeleportDestination = IsHit;
-	this->TeleportCylinder->SetVisibility(IsHit, true);
+		this->BIsValidTeleportDestination = IsHit;
+		this->TeleportCylinder->SetVisibility(IsHit, true);
 
-	// Call
-	UObject* WorldContextObject = GetWorld();
-	const TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes = { UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_WorldStatic) };
-	const TArray<AActor*> ActorsToIgnore;
-	FHitResult OutHit;
-	UKismetSystemLibrary::LineTraceSingleForObjects(
-		WorldContextObject,
-		NavMeshLocation,
-		NavMeshLocation + FVector(0.0f, 0.0f, -200.0f),
-		ObjectTypes,
-		false,
-		ActorsToIgnore,
-		EDrawDebugTrace::None,
-		OutHit,
-		true,
-		FLinearColor(1.0f, 0.0f, 0.0f),
-		FLinearColor(0.0f, 1.0f, 0.0f),
-		5.0f
-	);
-
-	this->TeleportCylinder->SetWorldLocation(
-		UKismetMathLibrary::SelectVector(
-			OutHit.ImpactPoint,
+		// Call
+		UObject* WorldContextObject = GetWorld();
+		const TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes = { UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_WorldStatic) };
+		const TArray<AActor*> ActorsToIgnore;
+		FHitResult OutHit;
+		UKismetSystemLibrary::LineTraceSingleForObjects(
+			WorldContextObject,
 			NavMeshLocation,
-			OutHit.bBlockingHit
-		),
-		false,
-		nullptr,
-		ETeleportType::TeleportPhysics
-	);
+			NavMeshLocation + FVector(0.0f, 0.0f, -200.0f),
+			ObjectTypes,
+			false,
+			ActorsToIgnore,
+			EDrawDebugTrace::None,
+			OutHit,
+			true,
+			FLinearColor(1.0f, 0.0f, 0.0f),
+			FLinearColor(0.0f, 1.0f, 0.0f),
+			5.0f
+		);
 
-	this->BLastFrameValidDestination = IsHit;
-	this->FUpdateArcSpline(IsHit, TracePoints);
-	this->FUpdateArcEndpoint(IsHit, TraceLocation);
+		this->TeleportCylinder->SetWorldLocation(
+			UKismetMathLibrary::SelectVector(
+				OutHit.ImpactPoint,
+				NavMeshLocation,
+				OutHit.bBlockingHit
+			),
+			false,
+			nullptr,
+			ETeleportType::TeleportPhysics
+		);
+
+		this->BLastFrameValidDestination = IsHit;
+		this->FUpdateArcSpline(IsHit, TracePoints);
+		this->FUpdateArcEndpoint(IsHit, TraceLocation);
+	}
 
 	const FTransform Transform = this->AMotionController->GetComponentTransform();
 	this->APhysicsHandle->SetTargetLocationAndRotation(
@@ -251,4 +258,9 @@ bool AHandsMotionController::FTraceTeleportDestination(TArray<FVector> & TracePo
 	NavMeshLocation = ProjectedLocation;
 	TraceLocation = OutHit.Location;
 	return IsHit && IsHitNav;
+}
+
+void AHandsMotionController::FGetTeleportDestination()
+{
+
 }

@@ -1,3 +1,5 @@
+#include "PlayerMotionController.h"
+
 #include "Engine/World.h"
 #include "Engine/EngineTypes.h"
 #include "HeadMountedDisplayFunctionLibrary.h"
@@ -6,9 +8,6 @@
 #include "Kismet/GameplayStatics.h"
 #include "Components/SceneComponent.h"
 #include "InputCoreTypes.h"
-#include <iostream>
-
-#include "PlayerMotionController.h"
 
 // Sets default values
 APlayerMotionController::APlayerMotionController()
