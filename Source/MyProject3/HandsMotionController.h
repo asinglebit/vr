@@ -12,7 +12,7 @@
 #include "MotionControllerComponent.h"
 #include "PhysicsEngine/PhysicsHandleComponent.h"
 #include "UObject/UObjectGlobals.h"
-#include "PickupActor.h"
+#include "Public/PickupActor.h"
 #include "HandsMotionController.generated.h"
 
 UCLASS()

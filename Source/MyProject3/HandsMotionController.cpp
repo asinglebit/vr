@@ -13,6 +13,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Public/PickupActor.h"
 #include "NavigationSystem.h"
 
 // Sets default values
@@ -263,12 +264,21 @@ bool AHandsMotionController::FTraceTeleportDestination(TArray<FVector> & TracePo
 
 AActor* AHandsMotionController::FGetActorNearHand()
 {
+	float NearestOverlap = 10000.0f;
 	AActor* NearestOverlappingActor = nullptr;
 	TArray<AActor*> OverlappingActors;
 	this->GrabSphere->GetOverlappingActors(OverlappingActors);
 
 	for (AActor* OverlappingActor : OverlappingActors) {
-		// TODO Find a way to implement interface
+		const bool IsPickupActor = UKismetSystemLibrary::DoesImplementInterface(OverlappingActor, UPickupActor::StaticClass());
+		if (IsPickupActor) {
+			const FVector DifferenceVector = OverlappingActor->GetActorLocation() - this->GrabSphere->GetComponentLocation();
+			const float VectorLength = DifferenceVector.Size();
+			if (VectorLength < NearestOverlap) {
+				NearestOverlappingActor = OverlappingActor;
+				NearestOverlap = VectorLength;
+			}
+		}
 	}
 
 	return NearestOverlappingActor;
