@@ -7,6 +7,7 @@
 #include "InputCoreTypes.h"
 #include "Components/SceneComponent.h"
 #include "Components/SplineComponent.h"
+#include "Components/SphereComponent.h"
 #include "Components/SplineMeshComponent.h"
 #include "MotionControllerComponent.h"
 #include "PhysicsEngine/PhysicsHandleComponent.h"
@@ -34,7 +35,7 @@ public:
 	USceneComponent* TeleportCylinder;
 	USplineComponent* ArcSpline;
 	USceneComponent* ArcEndPoint;
-	//USphereComponent* GrabSphere;
+	USphereComponent* GrabSphere;
 	UMotionControllerComponent* AMotionController;
 	UPhysicsHandleComponent* APhysicsHandle;
 
@@ -48,7 +49,7 @@ public:
 	bool BIsTeleporterActive;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Exposed)
-	bool BIsValidTeleportDestination;
+	bool BIsValidTeleportDestination; 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Exposed)
 	bool BLastFrameValidDestination;
@@ -63,10 +64,10 @@ public:
 	void FDisableTeleporter();
 
 	UFUNCTION(BlueprintCallable, Category = "Exposed")
-	void FGetActorNearHand();
+	AActor* FGetActorNearHand();
 
 	UFUNCTION(BlueprintCallable, Category = "Exposed")
-	void FGetTeleportDestination();
+	FVector FGetTeleportDestination();
 
 	UFUNCTION(BlueprintCallable, Category = "Exposed")
 	void FUpdateArcEndpoint(bool IsValidLocationFound, FVector NewLocation);

@@ -5,6 +5,7 @@
 #include "EngineUtils.h"
 #include "Components/SceneComponent.h"
 #include "Components/SplineComponent.h"
+#include "Components/SphereComponent.h"
 #include "Components/SplineMeshComponent.h"
 #include "MotionControllerComponent.h"
 #include "PhysicsEngine/PhysicsHandleComponent.h"
@@ -50,9 +51,9 @@ void AHandsMotionController::BeginPlay()
 		if (ComponentName == "TeleportCylinder") {
 			this->TeleportCylinder = CastChecked<USceneComponent>(component);
 		}
-		//else if (ComponentName == "GrabSphere") {
-		//	this->GrabSphere = CastChecked<USphereComponent>(component);
-		//}
+		else if (ComponentName == "GrabSphere") {
+			this->GrabSphere = CastChecked<USphereComponent>(component);
+		}
 		else if (ComponentName == "ArcSpline") {
 			this->ArcSpline = CastChecked<USplineComponent>(component);
 		}
@@ -260,7 +261,15 @@ bool AHandsMotionController::FTraceTeleportDestination(TArray<FVector> & TracePo
 	return IsHit && IsHitNav;
 }
 
-void AHandsMotionController::FGetTeleportDestination()
+AActor* AHandsMotionController::FGetActorNearHand()
 {
+	AActor* NearestOverlappingActor = nullptr;
+	TArray<AActor*> OverlappingActors;
+	this->GrabSphere->GetOverlappingActors(OverlappingActors);
 
+	for (AActor* OverlappingActor : OverlappingActors) {
+		// TODO Find a way to implement interface
+	}
+
+	return NearestOverlappingActor;
 }
