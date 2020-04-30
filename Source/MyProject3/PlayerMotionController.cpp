@@ -5,7 +5,6 @@
 #include "HeadMountedDisplayFunctionLibrary.h"
 #include "MotionControllerComponent.h"
 #include "Kismet/GameplayStatics.h"
-#include "Components/SceneComponent.h"
 #include "InputCoreTypes.h"
 
 // Sets default values
@@ -30,6 +29,8 @@ void APlayerMotionController::PostInitializeComponents() {
 		const FName ComponentName = component->GetFName();
 		if (ComponentName == "VROrigin") {
 			this->VROrigin = CastChecked<USceneComponent>(component);
+		} else if (ComponentName == "Capsule") {
+			this->ACapsule = CastChecked<UCapsuleComponent>(component);
 		}
 	}
 	
@@ -46,13 +47,37 @@ void APlayerMotionController::PostInitializeComponents() {
 	this->ARightController->AttachToComponent(this->VROrigin, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepWorld, false));
 }
 
-// Called when the game starts or when spawned
+void APlayerMotionController::FUpdateCapsuleHeight()
+{
+	FRotator DeviceRotation;
+	FVector DevicePosition;
+	UHeadMountedDisplayFunctionLibrary::GetOrientationAndPosition(DeviceRotation, DevicePosition);
+	const float CapsuleEyeOffset = DevicePosition.Z + this->FEyeHeightOffset;
+	const float DeltaLocationZ = CapsuleEyeOffset - this->FLastCapsuleZ;
+	const FVector DeltaLocation = FVector(0.0f, 0.0f, DeltaLocationZ);
+	this->ACapsule->AddWorldOffset(DeltaLocation);
+	this->ACapsule->SetCapsuleHalfHeight(CapsuleEyeOffset / 2.0f, true);
+	this->FLastCapsuleZ = CapsuleEyeOffset;
+}
+
+void APlayerMotionController::FUpdateActorPosition()
+{
+	FRotator DeviceRotation;
+	FVector DevicePosition;
+	UHeadMountedDisplayFunctionLibrary::GetOrientationAndPosition(DeviceRotation, DevicePosition);
+	const FVector CapsuleLocation = this->ACapsule->GetComponentLocation();
+	const float CapsuleHalfHeight = this->ACapsule->GetScaledCapsuleHalfHeight();
+	const FVector CorrectedHMDLocation = FVector(DevicePosition.X, DevicePosition.Y, CapsuleHalfHeight);
+	this->SetActorLocation(CapsuleLocation - CorrectedHMDLocation);
+}
+
 void APlayerMotionController::BeginPlay()
 {
 	Super::BeginPlay();
+
+	this->FEyeHeightOffset = 7.0;
 }
 
-// Called every frame
 void APlayerMotionController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);

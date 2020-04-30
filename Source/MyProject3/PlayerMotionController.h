@@ -5,7 +5,9 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
 #include "Components/SceneComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "HandsMotionController.h"
+#include "HeadMountedDisplayFunctionLibrary.h"
 #include "PlayerMotionController.generated.h"
 
 UCLASS()
@@ -19,6 +21,14 @@ public:
 	// Sets default values for this pawn's properties
 	APlayerMotionController();
 
+	UCapsuleComponent* ACapsule;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Exposed)
+	float FLastCapsuleZ;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Exposed)
+	float FEyeHeightOffset;
+
 	USceneComponent* VROrigin;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Exposed)
 	TSubclassOf<AActor> BPMotionControllerClass;
@@ -28,6 +38,12 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Exposed)
 	AHandsMotionController* ARightController;
+
+	UFUNCTION(BlueprintCallable, Category = "Exposed")
+	void FUpdateCapsuleHeight();
+
+	UFUNCTION(BlueprintCallable, Category = "Exposed")
+	void FUpdateActorPosition();
 
 protected:
 	// Called when the game starts or when spawned
