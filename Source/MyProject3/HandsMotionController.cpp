@@ -79,7 +79,7 @@ void AHandsMotionController::BeginPlay()
 
 	// Set construction logic
 
-	this->TeleportCylinder->SetVisibility(true, true);
+	this->TeleportCylinder->SetVisibility(false, true);
 }
 
 void AHandsMotionController::Tick(float DeltaTime)

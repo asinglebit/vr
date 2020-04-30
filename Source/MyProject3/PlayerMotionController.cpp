@@ -4,7 +4,6 @@
 #include "Engine/EngineTypes.h"
 #include "HeadMountedDisplayFunctionLibrary.h"
 #include "MotionControllerComponent.h"
-#include "HandsMotionController.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/SceneComponent.h"
 #include "InputCoreTypes.h"
@@ -15,61 +14,52 @@ APlayerMotionController::APlayerMotionController()
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	static ConstructorHelpers::FClassFinder<AActor> ActorClassFinder(TEXT("/Game/Blueprints/BP_MotionController"));
+	this->BPMotionControllerClass = ActorClassFinder.Class;
+
+}
+
+void APlayerMotionController::PostInitializeComponents() {
+	Super::PostInitializeComponents();
+	UHeadMountedDisplayFunctionLibrary::SetTrackingOrigin(EHMDTrackingOrigin::Floor);
+
+	// Get components
+	auto components = this->GetComponents();
+	for (auto component : components)
+	{
+		const FName ComponentName = component->GetFName();
+		if (ComponentName == "VROrigin") {
+			this->VROrigin = CastChecked<USceneComponent>(component);
+		}
+	}
+	
+	// Spawn left hand
+	this->ALeftController = GetWorld()->SpawnActorDeferred<AHandsMotionController>(this->BPMotionControllerClass, FTransform::Identity, this, NULL, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+	this->ALeftController->EHand = EControllerHand::Left;
+	UGameplayStatics::FinishSpawningActor(this->ALeftController, FTransform::Identity);
+	this->ALeftController->AttachToComponent(this->VROrigin, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepWorld, false));
+
+	// Spawn right hand
+	this->ARightController = GetWorld()->SpawnActorDeferred<AHandsMotionController>(this->BPMotionControllerClass, FTransform::Identity, this, NULL, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+	this->ARightController->EHand = EControllerHand::Right;
+	UGameplayStatics::FinishSpawningActor(this->ARightController, FTransform::Identity);
+	this->ARightController->AttachToComponent(this->VROrigin, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepWorld, false));
 }
 
 // Called when the game starts or when spawned
 void APlayerMotionController::BeginPlay()
 {
 	Super::BeginPlay();
-	//UHeadMountedDisplayFunctionLibrary::SetTrackingOrigin(EHMDTrackingOrigin::Floor);
-
-	// Spawn left hand
-	/*{
-		UObject* ClassPackage = ANY_PACKAGE;
-		UObject* ObjectToSpawn;
-		ObjectToSpawn = FindObject<UObject>(ClassPackage, TEXT("/Game/Blueprints/BP_MotionController.BP_MotionController"));
-		UClass* ClassToSpawn = ObjectToSpawn->StaticClass();
-		AActor * NewActor = GetWorld()->SpawnActorDeferred<AActor>(ClassToSpawn, FTransform::Identity, NULL, NULL, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
-		//NewActor->EHand = EControllerHand::Left;
-		UGameplayStatics::FinishSpawningActor(NewActor, FTransform::Identity);
-		auto components = this->GetComponent();
-		USceneComponent* SceneComponent = nullptr;
-		for (auto component : components)
-		{
-			if (component->GetFName() == "VROrigin")
-			{
-				SceneComponent = Cast<USceneComponent>(component);
-			}
-		}
-		NewActor->AttachToComponent(SceneComponent, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepRelative, false));
-		//NewActor->AttachToComponent(, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepRelative, false));
-	}*/
-
-	// Spawn right hand
-
-	/*{
-		UObject* ClassPackage = ANY_PACKAGE;
-		UObject* ObjectToSpawn;
-		ObjectToSpawn = FindObject<UObject>(ClassPackage, TEXT("/Game/Blueprints/BP_MotionController.BP_MotionController"));
-		UClass* ClassToSpawn = ObjectToSpawn->StaticClass();
-		AHandsMotionController * NewActor = GetWorld()->SpawnActorDeferred<AHandsMotionController>(ClassToSpawn, FTransform::Identity, NULL, NULL, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
-		//NewActor->EHand = EControllerHand::Right;
-		UGameplayStatics::FinishSpawningActor(NewActor, FTransform::Identity);
-		//auto components = this->GetComponents();
-		//NewActor->AttachToComponent(, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepRelative, false));
-	}*/
 }
 
 // Called every frame
 void APlayerMotionController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 // Called to bind functionality to input
 void APlayerMotionController::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
 }
