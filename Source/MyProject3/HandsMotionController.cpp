@@ -32,17 +32,8 @@ AHandsMotionController::AHandsMotionController()
 	this->Material = SMaterial.Object;
 }
 
-// Called when the game starts or when spawned
-void AHandsMotionController::BeginPlay()
-{
-	Super::BeginPlay();
-
-	// Initialize variables
-
-	this->FTeleportLaunchVelocity = 900.0f;
-	this->BIsTeleporterActive = false;
-	this->BIsValidTeleportDestination = false;
-	this->BIsToBeGripped = false;
+void AHandsMotionController::PostInitializeComponents() {
+	Super::PostInitializeComponents();
 
 	// Get components
 
@@ -69,6 +60,22 @@ void AHandsMotionController::BeginPlay()
 			this->ArcEndPoint = CastChecked<USceneComponent>(component);
 		}
 	}
+
+	FString HandString = UEnum::GetValueAsString(this->EHand.GetValue());
+	this->AMotionController->SetTrackingMotionSource(FName(*HandString));
+}
+
+// Called when the game starts or when spawned
+void AHandsMotionController::BeginPlay()
+{
+	Super::BeginPlay();
+
+	// Initialize variables
+
+	this->FTeleportLaunchVelocity = 900.0f;
+	this->BIsTeleporterActive = false;
+	this->BIsValidTeleportDestination = false;
+	this->BIsToBeGripped = false;
 
 	// Set construction logic
 

@@ -20,10 +20,10 @@ class MYPROJECT3_API AHandsMotionController : public AActor
 {
 	GENERATED_BODY()
 
-private:
-
 	UStaticMesh* Mesh;
 	UMaterialInterface* Material;
+
+	virtual void PostInitializeComponents() override;
 
 public:	
 	// Sets default values for this actor's properties
