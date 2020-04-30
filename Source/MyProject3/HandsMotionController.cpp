@@ -42,6 +42,7 @@ void AHandsMotionController::BeginPlay()
 	this->FTeleportLaunchVelocity = 900.0f;
 	this->BIsTeleporterActive = false;
 	this->BIsValidTeleportDestination = false;
+	this->BIsToBeGripped = false;
 
 	// Get components
 
@@ -282,4 +283,27 @@ AActor* AHandsMotionController::FGetActorNearHand()
 	}
 
 	return NearestOverlappingActor;
+}
+
+void AHandsMotionController::FGrabActor()
+{
+	const bool a = true;
+	this->BIsToBeGripped = true;
+	AActor* ActorToBeGripped = this->FGetActorNearHand();
+	if (ActorToBeGripped != NULL) {
+		this->AttachedActor = ActorToBeGripped;		
+		IPickupActor::Execute_FPickup(ActorToBeGripped, this->AMotionController, this->APhysicsHandle);
+	}
+}
+
+void AHandsMotionController::FReleaseActor()
+{
+	this->BIsToBeGripped = false;
+	if (this->AttachedActor != NULL) {
+		const bool IsHeldByMe = IPickupActor::Execute_FIsHeldByMe(this->AttachedActor, this->AMotionController);
+		if (IsHeldByMe) {
+			IPickupActor::Execute_FDrop(this->AttachedActor);
+		}
+		this->AttachedActor = nullptr;
+	}
 }

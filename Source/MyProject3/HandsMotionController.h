@@ -39,6 +39,9 @@ public:
 	UMotionControllerComponent* AMotionController;
 	UPhysicsHandleComponent* APhysicsHandle;
 
+	bool BIsToBeGripped;
+	AActor* AttachedActor;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Exposed)
 	TArray<USplineMeshComponent*> ASplineMeshes;
 
@@ -77,6 +80,12 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Exposed")
 	bool FTraceTeleportDestination(TArray<FVector> & TracePoints, FVector & NavMeshLocation, FVector & TraceLocation);
+
+	UFUNCTION(BlueprintCallable, Category = "Exposed")
+	void FGrabActor();
+
+	UFUNCTION(BlueprintCallable, Category = "Exposed")
+	void FReleaseActor();
 
 protected:
 	// Called when the game starts or when spawned
