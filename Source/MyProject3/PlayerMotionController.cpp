@@ -8,7 +8,9 @@
 #include "Kismet/GameplayStatics.h"
 #include "InputCoreTypes.h"
 
-// Sets default values
+const FName APlayerMotionController::MotionControllerThumbLeftXBinding("MotionControllerThumbLeft_X");
+const FName APlayerMotionController::MotionControllerThumbLeftYBinding("MotionControllerThumbLeft_Y");
+
 APlayerMotionController::APlayerMotionController()
 {
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -17,6 +19,7 @@ APlayerMotionController::APlayerMotionController()
 	static ConstructorHelpers::FClassFinder<AActor> ActorClassFinder(TEXT("/Game/Blueprints/BP_MotionController"));
 	this->BPMotionControllerClass = ActorClassFinder.Class;
 
+	this->FMovementMultiplier = 1.0f;
 	this->FEyeHeightOffset = 7.0f;
 	this->FFadeInDuration = 0.2f;
 	this->FFadeOutDuration = 0.1f;
@@ -118,6 +121,21 @@ void APlayerMotionController::FUpdateRoomScalePosition()
 	this->VLastRoomScalePosition = GroundedDevicePosition;
 }
 
+void APlayerMotionController::FTrackPadMovement()
+{
+	if (this->BIsLeftStickDown) {
+		FTransform CameraTransform = this->ACamera->GetComponentTransform();
+		FRotator NewCameraRotator = FRotator(0.0f, CameraTransform.Rotator().Yaw, 0.0f);
+		FTransform NewCameraTransform = FTransform(NewCameraRotator, CameraTransform.GetTranslation(), CameraTransform.GetScale3D());
+		const float MotionControllerThumbLeftXValue = GetInputAxisValue(MotionControllerThumbLeftXBinding);
+		const float MotionControllerThumbLeftYValue = GetInputAxisValue(MotionControllerThumbLeftYBinding);
+		FVector Direction = FVector(MotionControllerThumbLeftYValue, MotionControllerThumbLeftXValue, 0.0f) * 4.0f;
+		FVector DeltaLocation = UKismetMathLibrary::TransformDirection(NewCameraTransform, Direction);
+		this->ACapsule->AddWorldOffset(DeltaLocation);
+		this->FUpdateActorPosition();
+	}
+}
+
 void APlayerMotionController::BeginPlay()
 {
 	Super::BeginPlay();
@@ -134,4 +152,7 @@ void APlayerMotionController::Tick(float DeltaTime)
 void APlayerMotionController::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+	PlayerInputComponent->BindAxis(MotionControllerThumbLeftXBinding);
+	PlayerInputComponent->BindAxis(MotionControllerThumbLeftYBinding);
 }

@@ -8,6 +8,7 @@
 #include "Components/SceneComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "HandsMotionController.h"
@@ -33,6 +34,12 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Exposed)
 	FVector VLastCapsuleLocation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Exposed)
+	bool BIsLeftStickDown;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Exposed)
+	float FMovementMultiplier;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Exposed)
 	float FLastCapsuleZ;
@@ -80,6 +87,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Exposed")
 	void FUpdateRoomScalePosition();
 
+	UFUNCTION(BlueprintCallable, Category = "Exposed")
+	void FTrackPadMovement();
+
+
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -91,4 +103,8 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	//void MotionControllerThumbLeft_Y(float AxisValue);
+
+	static const FName MotionControllerThumbLeftXBinding;
+	static const FName MotionControllerThumbLeftYBinding;
 };
