@@ -89,6 +89,11 @@ void APlayerMotionController::FInitVariables()
 	this->FUpdateActorPosition();
 }
 
+void APlayerMotionController::FUpdateVariables()
+{
+	this->VLastCapsuleLocation = this->ACapsule->GetComponentLocation();
+}
+
 void APlayerMotionController::BeginPlay()
 {
 	Super::BeginPlay();

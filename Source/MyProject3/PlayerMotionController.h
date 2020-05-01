@@ -29,6 +29,9 @@ public:
 	FVector VLastRoomScalePosition;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Exposed)
+	FVector VLastCapsuleLocation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Exposed)
 	float FLastCapsuleZ;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Exposed)
@@ -52,6 +55,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Exposed")
 	void FInitVariables();
+
+	UFUNCTION(BlueprintCallable, Category = "Exposed")
+	void FUpdateVariables();
 
 protected:
 	// Called when the game starts or when spawned
