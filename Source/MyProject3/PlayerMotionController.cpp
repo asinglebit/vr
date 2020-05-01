@@ -136,6 +136,45 @@ void APlayerMotionController::FTrackPadMovement()
 	}
 }
 
+void APlayerMotionController::TeleportRightPressed()
+{
+	this->ARightController->FActivateTeleporter();
+}
+
+//void APlayerMotionController::TeleportRightReleased()
+//{}
+
+void APlayerMotionController::TeleportLeftPressed()
+{
+	this->BIsLeftStickDown = true;
+}
+
+void APlayerMotionController::TeleportLeftReleased()
+{
+	this->BIsLeftStickDown = false;
+}
+
+void APlayerMotionController::GrabRightPressed()
+{
+	this->ARightController->FGrabActor();
+}
+
+void APlayerMotionController::GrabRightReleased()
+{
+	this->ARightController->FReleaseActor();
+}
+
+void APlayerMotionController::GrabLeftPressed()
+{
+	this->ALeftController->FGrabActor();
+}
+
+void APlayerMotionController::GrabLeftReleased()
+{
+	this->ALeftController->FReleaseActor();
+}
+
+
 void APlayerMotionController::BeginPlay()
 {
 	Super::BeginPlay();
@@ -148,10 +187,18 @@ void APlayerMotionController::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-// Called to bind functionality to input
 void APlayerMotionController::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+	PlayerInputComponent->BindAction("TeleportRight", EInputEvent::IE_Pressed, this, &APlayerMotionController::TeleportRightPressed);
+	//PlayerInputComponent->BindAction("TeleportRight", EInputEvent::IE_Released, this, &APlayerMotionController::TeleportRightReleased);
+	PlayerInputComponent->BindAction("TeleportLeft", EInputEvent::IE_Pressed, this, &APlayerMotionController::TeleportLeftPressed);
+	PlayerInputComponent->BindAction("TeleportLeft", EInputEvent::IE_Released, this, &APlayerMotionController::TeleportLeftReleased);
+	PlayerInputComponent->BindAction("GrabRight", EInputEvent::IE_Pressed, this, &APlayerMotionController::GrabRightPressed);
+	PlayerInputComponent->BindAction("GrabRight", EInputEvent::IE_Released, this, &APlayerMotionController::GrabRightReleased);
+	PlayerInputComponent->BindAction("GrabLeft", EInputEvent::IE_Pressed, this, &APlayerMotionController::GrabLeftPressed);
+	PlayerInputComponent->BindAction("GrabLeft", EInputEvent::IE_Released, this, &APlayerMotionController::GrabLeftReleased);
 
 	PlayerInputComponent->BindAxis(MotionControllerThumbLeftXBinding);
 	PlayerInputComponent->BindAxis(MotionControllerThumbLeftYBinding);

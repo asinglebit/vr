@@ -90,7 +90,14 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Exposed")
 	void FTrackPadMovement();
 
-
+	void TeleportRightPressed();
+	//void TeleportRightReleased();
+	void TeleportLeftPressed();
+	void TeleportLeftReleased();
+	void GrabRightPressed();
+	void GrabRightReleased();
+	void GrabLeftPressed();
+	void GrabLeftReleased();
 
 protected:
 	// Called when the game starts or when spawned
