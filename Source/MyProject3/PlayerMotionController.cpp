@@ -99,6 +99,25 @@ void APlayerMotionController::FUpdateVariables()
 	this->VLastCapsuleLocation = this->ACapsule->GetComponentLocation();
 }
 
+void APlayerMotionController::FCheckCapsuleSeparation()
+{
+	const FVector VectorDifference = this->ACamera->GetComponentLocation() - this->ACapsule->GetComponentLocation();
+	const float Difference = FVector(VectorDifference.X, VectorDifference.Y, 0.0f).Size();
+	if (Difference > 60.0f) {
+		this->FUpdateActorPosition();
+	}
+}
+
+void APlayerMotionController::FUpdateRoomScalePosition()
+{
+	FRotator DeviceRotation;
+	FVector DevicePosition;
+	UHeadMountedDisplayFunctionLibrary::GetOrientationAndPosition(DeviceRotation, DevicePosition);
+	FVector GroundedDevicePosition = FVector(DevicePosition.X, DevicePosition.Y, 0.0f);
+	this->ACapsule->AddWorldOffset(GroundedDevicePosition - this->VLastRoomScalePosition);
+	this->VLastRoomScalePosition = GroundedDevicePosition;
+}
+
 void APlayerMotionController::BeginPlay()
 {
 	Super::BeginPlay();

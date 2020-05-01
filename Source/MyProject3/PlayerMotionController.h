@@ -74,6 +74,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Exposed")
 	void FUpdateVariables();
 
+	UFUNCTION(BlueprintCallable, Category = "Exposed")
+	void FCheckCapsuleSeparation();
+
+	UFUNCTION(BlueprintCallable, Category = "Exposed")
+	void FUpdateRoomScalePosition();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
