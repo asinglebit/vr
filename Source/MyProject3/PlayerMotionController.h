@@ -6,6 +6,7 @@
 #include "GameFramework/Pawn.h"
 #include "Components/SceneComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Camera/CameraComponent.h"
 #include "HandsMotionController.h"
 #include "HeadMountedDisplayFunctionLibrary.h"
 #include "PlayerMotionController.generated.h"
@@ -22,6 +23,10 @@ public:
 	APlayerMotionController();
 
 	UCapsuleComponent* ACapsule;
+	UCameraComponent* ACamera;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Exposed)
+	FVector VLastRoomScalePosition;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Exposed)
 	float FLastCapsuleZ;
@@ -44,6 +49,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Exposed")
 	void FUpdateActorPosition();
+
+	UFUNCTION(BlueprintCallable, Category = "Exposed")
+	void FInitVariables();
 
 protected:
 	// Called when the game starts or when spawned

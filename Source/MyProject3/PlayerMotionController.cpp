@@ -32,6 +32,9 @@ void APlayerMotionController::PostInitializeComponents() {
 		} else if (ComponentName == "Capsule") {
 			this->ACapsule = CastChecked<UCapsuleComponent>(component);
 		}
+		else if (ComponentName == "Camera") {
+			this->ACamera = CastChecked<UCameraComponent>(component);
+		}
 	}
 	
 	// Spawn left hand
@@ -71,11 +74,28 @@ void APlayerMotionController::FUpdateActorPosition()
 	this->SetActorLocation(CapsuleLocation - CorrectedHMDLocation);
 }
 
+void APlayerMotionController::FInitVariables()
+{
+	FRotator DeviceRotation;
+	FVector DevicePosition;
+	UHeadMountedDisplayFunctionLibrary::GetOrientationAndPosition(DeviceRotation, DevicePosition);
+	this->FLastCapsuleZ = DevicePosition.Z + this->FEyeHeightOffset;
+	this->FUpdateCapsuleHeight();
+	this->VLastRoomScalePosition = FVector(DevicePosition.X, DevicePosition.Y, 0.0f);
+
+	const FVector CameraLocation = this->ACamera->GetComponentLocation();
+	const FVector NewLocation = FVector(CameraLocation.X, CameraLocation.Y, this->ACapsule->GetScaledCapsuleHalfHeight() + this->GetActorLocation().Z);
+	this->ACapsule->SetWorldLocationAndRotation(NewLocation, FQuat::Identity);
+	this->FUpdateActorPosition();
+}
+
 void APlayerMotionController::BeginPlay()
 {
 	Super::BeginPlay();
 
 	this->FEyeHeightOffset = 7.0;
+
+	this->FInitVariables();
 }
 
 void APlayerMotionController::Tick(float DeltaTime)
