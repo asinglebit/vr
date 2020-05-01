@@ -3,10 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Math/Color.h"
 #include "GameFramework/Pawn.h"
 #include "Components/SceneComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetSystemLibrary.h"
 #include "HandsMotionController.h"
 #include "HeadMountedDisplayFunctionLibrary.h"
 #include "PlayerMotionController.generated.h"
@@ -36,6 +39,18 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Exposed)
 	float FEyeHeightOffset;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Exposed)
+	float FRealignDelay;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Exposed)
+	float FFadeInDuration;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Exposed)
+	float FFadeOutDuration;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Exposed)
+	FLinearColor CTeleportFadeColor;
 
 	USceneComponent* VROrigin;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Exposed)

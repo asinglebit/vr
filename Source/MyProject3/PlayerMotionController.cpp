@@ -2,6 +2,7 @@
 
 #include "Engine/World.h"
 #include "Engine/EngineTypes.h"
+#include "TimerManager.h"
 #include "HeadMountedDisplayFunctionLibrary.h"
 #include "MotionControllerComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -16,6 +17,10 @@ APlayerMotionController::APlayerMotionController()
 	static ConstructorHelpers::FClassFinder<AActor> ActorClassFinder(TEXT("/Game/Blueprints/BP_MotionController"));
 	this->BPMotionControllerClass = ActorClassFinder.Class;
 
+	this->FEyeHeightOffset = 7.0f;
+	this->FFadeInDuration = 0.2f;
+	this->FFadeOutDuration = 0.1f;
+	this->CTeleportFadeColor = FLinearColor(0.0f, 0.0f, 0.0f, 1.0f);
 }
 
 void APlayerMotionController::PostInitializeComponents() {
@@ -97,8 +102,6 @@ void APlayerMotionController::FUpdateVariables()
 void APlayerMotionController::BeginPlay()
 {
 	Super::BeginPlay();
-
-	this->FEyeHeightOffset = 7.0;
 
 	this->FInitVariables();
 }
