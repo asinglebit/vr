@@ -43,10 +43,19 @@ public:
 	bool BIsLeftStickDown;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Exposed)
+	bool BIsFalling;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Exposed)
+	bool BIsCapsuleHit;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Exposed)
 	float FMovementMultiplier;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Exposed)
 	float FLastCapsuleZ;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Exposed)
+	float FMaxStepHeight;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Exposed)
 	float FEyeHeightOffset;
@@ -97,8 +106,17 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Exposed")
 	void FTrackPadMovement();
 
+	UFUNCTION(BlueprintCallable, Category = "Exposed")
+	void FCheckUpdateActorPosition();
+
+	UFUNCTION(BlueprintCallable, Category = "Exposed")
+	bool FIsUnderMaxStepHeight(bool Flag, FVector InVector);
+
+	UFUNCTION(BlueprintCallable, Category = "Exposed")
+	FVector FGetCapsuleBottom();
+
 	void TeleportRightPressed();
-	//void TeleportRightReleased();
+	void TeleportRightReleased();
 	void TeleportLeftPressed();
 	void TeleportLeftReleased();
 	void GrabRightPressed();

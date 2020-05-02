@@ -3,9 +3,7 @@
 #include "Engine/World.h"
 #include "Engine/EngineTypes.h"
 #include "TimerManager.h"
-#include "HeadMountedDisplayFunctionLibrary.h"
 #include "MotionControllerComponent.h"
-#include "Kismet/GameplayStatics.h"
 #include "InputCoreTypes.h"
 
 const FName APlayerMotionController::MotionControllerThumbLeftXBinding("MotionControllerThumbLeft_X");
@@ -19,6 +17,7 @@ APlayerMotionController::APlayerMotionController()
 	static ConstructorHelpers::FClassFinder<AActor> ActorClassFinder(TEXT("/Game/Blueprints/BP_MotionController"));
 	this->BPMotionControllerClass = ActorClassFinder.Class;
 
+	this->FMaxStepHeight = 32.0f;
 	this->FMovementMultiplier = 1.0f;
 	this->FEyeHeightOffset = 7.0f;
 	this->FFadeInDuration = 0.2f;
@@ -136,6 +135,62 @@ void APlayerMotionController::FTrackPadMovement()
 	}
 }
 
+void APlayerMotionController::FCheckUpdateActorPosition()
+{
+	ACapsule->SetWorldRotation(FQuat::Identity);
+
+	FRotator DeviceRotation;
+	FVector DevicePosition;
+	UHeadMountedDisplayFunctionLibrary::GetOrientationAndPosition(DeviceRotation, DevicePosition);
+
+	FVector TraceVector = GetActorLocation() + FVector(DevicePosition.X, DevicePosition.Y, ACapsule->GetScaledCapsuleHalfHeight());
+	float TraceDifference = ACapsule->GetScaledCapsuleHalfHeight() - (ACapsule->GetScaledCapsuleRadius() + 3.0f);
+	FVector StartVector = TraceVector + FVector(0.0f, 0.0f, TraceDifference);
+	FVector EndVector = TraceVector - FVector(0.0f, 0.0f, TraceDifference);
+	TArray<AActor*> ActorsToIgnore = {};
+	FHitResult OutHit;
+	bool IsTraced = UKismetSystemLibrary::SphereTraceSingle(
+		GetWorld(),
+		StartVector,
+		EndVector,
+		ACapsule->GetScaledCapsuleRadius(),
+		ETraceTypeQuery::TraceTypeQuery3,
+		false,
+		ActorsToIgnore,
+		EDrawDebugTrace::ForOneFrame,
+		OutHit,
+		true
+	);
+	if (
+		IsTraced
+		&& !BIsFalling
+		&& !FIsUnderMaxStepHeight(OutHit.bStartPenetrating, OutHit.ImpactPoint)
+	) {
+		BIsCapsuleHit = true;
+		ACapsule->SetPhysicsLinearVelocity(FVector(0.0f, 0.0f, 0.0f));
+	}
+	else {
+		FUpdateRoomScalePosition();
+		if (BIsCapsuleHit) {
+			FVector CameraWorldLocation = ACamera->GetComponentLocation();
+			FVector NewLocation = FVector(CameraWorldLocation.X, CameraWorldLocation.Y, GetActorLocation().Z + ACapsule->GetScaledCapsuleHalfHeight());
+			ACapsule->SetWorldLocation(NewLocation);
+		}
+		else {
+			FUpdateActorPosition();
+		}
+		BIsCapsuleHit = false;
+	}
+}
+
+bool APlayerMotionController::FIsUnderMaxStepHeight(bool Flag, FVector InVector)
+{
+	return (
+		((FGetCapsuleBottom().Z + FMaxStepHeight) > InVector.Z)
+		&& !Flag
+	);
+}
+
 void APlayerMotionController::FExecuteTeleportation(AHandsMotionController* MotionController)
 {
 	if (BIsTeleporting) return;
@@ -169,13 +224,22 @@ void APlayerMotionController::FExecuteTeleportationDelayed(AHandsMotionControlle
 	}
 }
 
+FVector APlayerMotionController::FGetCapsuleBottom()
+{
+	return ACapsule->GetComponentLocation() - FVector(0.0f, 0.0f, ACapsule->GetScaledCapsuleHalfHeight());
+}
+
 void APlayerMotionController::TeleportRightPressed()
 {
 	this->ARightController->FActivateTeleporter();
 }
 
-//void APlayerMotionController::TeleportRightReleased()
-//{}
+void APlayerMotionController::TeleportRightReleased()
+{
+	if (ARightController->BIsTeleporterActive) {
+		FExecuteTeleportation(ARightController);
+	}
+}
 
 void APlayerMotionController::TeleportLeftPressed()
 {
@@ -224,7 +288,7 @@ void APlayerMotionController::SetupPlayerInputComponent(UInputComponent* PlayerI
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 	PlayerInputComponent->BindAction("TeleportRight", EInputEvent::IE_Pressed, this, &APlayerMotionController::TeleportRightPressed);
-	//PlayerInputComponent->BindAction("TeleportRight", EInputEvent::IE_Released, this, &APlayerMotionController::TeleportRightReleased);
+	PlayerInputComponent->BindAction("TeleportRight", EInputEvent::IE_Released, this, &APlayerMotionController::TeleportRightReleased);
 	PlayerInputComponent->BindAction("TeleportLeft", EInputEvent::IE_Pressed, this, &APlayerMotionController::TeleportLeftPressed);
 	PlayerInputComponent->BindAction("TeleportLeft", EInputEvent::IE_Released, this, &APlayerMotionController::TeleportLeftReleased);
 	PlayerInputComponent->BindAction("GrabRight", EInputEvent::IE_Pressed, this, &APlayerMotionController::GrabRightPressed);
