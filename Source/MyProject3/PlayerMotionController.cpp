@@ -136,6 +136,39 @@ void APlayerMotionController::FTrackPadMovement()
 	}
 }
 
+void APlayerMotionController::FExecuteTeleportation(AHandsMotionController* MotionController)
+{
+	if (BIsTeleporting) return;
+	if (MotionController->BIsValidTeleportDestination) {
+		BIsTeleporting = true;
+		{
+			APlayerCameraManager* CameraManager = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0);
+			CameraManager->StartCameraFade(0.0f, 1.0f, FFadeOutDuration, CTeleportFadeColor, false, true);
+		}
+
+		FTimerDelegate TimerDelegeate;
+		TimerDelegeate.BindUFunction(this, FName("FExecuteTeleportationDelayed"), MotionController);
+		GetWorld()->GetTimerManager().SetTimer(TeleportationTimerHandle, TimerDelegeate, FFadeOutDuration, false);
+	}
+	else {
+		MotionController->FDisableTeleporter();
+	}
+}
+
+void APlayerMotionController::FExecuteTeleportationDelayed(AHandsMotionController* MotionController)
+{
+	MotionController->FDisableTeleporter();
+	FVector TeleportDestination = MotionController->FGetTeleportDestination();
+	FVector NewLocation = TeleportDestination + FVector(0.0f, 0.0f, ACapsule->GetScaledCapsuleHalfHeight());
+	ACapsule->SetWorldLocationAndRotation(NewLocation, FQuat::Identity);
+	{
+		APlayerCameraManager* CameraManager = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0);
+		CameraManager->StartCameraFade(1.0f, 0.0f, FFadeInDuration, CTeleportFadeColor, false, false);
+		BIsTeleporting = false;
+		FUpdateActorPosition();
+	}
+}
+
 void APlayerMotionController::TeleportRightPressed()
 {
 	this->ARightController->FActivateTeleporter();
@@ -173,7 +206,6 @@ void APlayerMotionController::GrabLeftReleased()
 {
 	this->ALeftController->FReleaseActor();
 }
-
 
 void APlayerMotionController::BeginPlay()
 {

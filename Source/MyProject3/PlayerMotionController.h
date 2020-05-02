@@ -13,6 +13,7 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "HandsMotionController.h"
 #include "HeadMountedDisplayFunctionLibrary.h"
+#include "HandsMotionController.h"
 #include "PlayerMotionController.generated.h"
 
 UCLASS()
@@ -34,6 +35,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Exposed)
 	FVector VLastCapsuleLocation;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Exposed)
+	bool BIsTeleporting;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Exposed)
 	bool BIsLeftStickDown;
@@ -88,6 +92,9 @@ public:
 	void FUpdateRoomScalePosition();
 
 	UFUNCTION(BlueprintCallable, Category = "Exposed")
+	void FExecuteTeleportation(AHandsMotionController* MotionController);
+
+	UFUNCTION(BlueprintCallable, Category = "Exposed")
 	void FTrackPadMovement();
 
 	void TeleportRightPressed();
@@ -98,6 +105,10 @@ public:
 	void GrabRightReleased();
 	void GrabLeftPressed();
 	void GrabLeftReleased();
+
+	FTimerHandle TeleportationTimerHandle;
+	UFUNCTION()
+	void FExecuteTeleportationDelayed(AHandsMotionController* MotionController);
 
 protected:
 	// Called when the game starts or when spawned
