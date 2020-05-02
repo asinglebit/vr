@@ -17,6 +17,7 @@ APlayerMotionController::APlayerMotionController()
 	static ConstructorHelpers::FClassFinder<AActor> ActorClassFinder(TEXT("/Game/Blueprints/BP_MotionController"));
 	this->BPMotionControllerClass = ActorClassFinder.Class;
 
+	this->FMaxFloorSlope = 35.0f;
 	this->FMaxStepHeight = 32.0f;
 	this->FMovementMultiplier = 1.0f;
 	this->FEyeHeightOffset = 7.0f;
@@ -154,7 +155,7 @@ void APlayerMotionController::FCheckUpdateActorPosition()
 		StartVector,
 		EndVector,
 		ACapsule->GetScaledCapsuleRadius(),
-		ETraceTypeQuery::TraceTypeQuery3,
+		ETraceTypeQuery::TraceTypeQuery1,
 		false,
 		ActorsToIgnore,
 		EDrawDebugTrace::ForOneFrame,
@@ -227,6 +228,80 @@ void APlayerMotionController::FExecuteTeleportationDelayed(AHandsMotionControlle
 FVector APlayerMotionController::FGetCapsuleBottom()
 {
 	return ACapsule->GetComponentLocation() - FVector(0.0f, 0.0f, ACapsule->GetScaledCapsuleHalfHeight());
+}
+
+void APlayerMotionController::FCheckFloor()
+{
+	FVector CapsuleBottom = FGetCapsuleBottom();
+	FVector StartVector = CapsuleBottom + FVector(0.0f, 0.0f, FMaxStepHeight);
+	FVector EndVector = CapsuleBottom - FVector(0.0f, 0.0f, FMaxStepHeight);
+	TArray<AActor*> ActorsToIgnore = {};
+	FHitResult OutHit;
+	bool IsTraced = UKismetSystemLibrary::SphereTraceSingle(
+		GetWorld(),
+		StartVector,
+		EndVector,
+		ACapsule->GetScaledCapsuleRadius(),
+		ETraceTypeQuery::TraceTypeQuery1,
+		false,
+		ActorsToIgnore,
+		EDrawDebugTrace::ForOneFrame,
+		OutHit,
+		true
+	);
+	if (IsTraced) {
+		if (FIsUnderMaxStepHeight(OutHit.bStartPenetrating, OutHit.ImpactPoint)) {
+			BIsFalling = false;
+			const float DotProduct = FVector::DotProduct(FVector(0.0f, 0.0f, 1.0f), OutHit.ImpactNormal);
+			if (UKismetMathLibrary::DegAcos(DotProduct) < FMaxFloorSlope) {
+				ACapsule->SetPhysicsLinearVelocity(FVector(0.0f, 0.0f, 0.0f));
+				FHitResult LineTraceHit;
+				UKismetSystemLibrary::LineTraceSingle(
+					GetWorld(),
+					StartVector,
+					EndVector,
+					ETraceTypeQuery::TraceTypeQuery1,
+					false,
+					TArray<AActor*>(),
+					EDrawDebugTrace::ForOneFrame,
+					LineTraceHit,
+					true
+				);
+
+				FVector HighestVector = (CapsuleBottom.Z > OutHit.ImpactPoint.Z) ? CapsuleBottom : OutHit.ImpactPoint;
+				FVector DifferenceVector = LineTraceHit.ImpactPoint - HighestVector;
+				float Difference = DifferenceVector.Size();
+				float InterpSpeed = (Difference > 1.0f) ? 15.0f : 100.0f;
+
+				FVector CapsuleWorldLocation = ACapsule->GetComponentLocation();
+				FVector TargetVector = FVector(
+					CapsuleWorldLocation.X,
+					CapsuleWorldLocation.Y,
+					CapsuleWorldLocation.Z + OutHit.ImpactPoint.Z - CapsuleBottom.Z
+				);
+				FVector NewCapsuleLocation = FMath::VInterpTo(
+					ACapsule->GetComponentLocation(),
+					TargetVector,
+					UGameplayStatics::GetWorldDeltaSeconds(GetWorld()),
+					InterpSpeed
+				);
+				ACapsule->SetWorldLocation(NewCapsuleLocation);
+				FMovementMultiplier = FMath::FInterpTo(FMovementMultiplier, 1.0f, UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), 30.0f);
+			}
+			else {
+				BIsFalling = true;
+				ACapsule->SetEnableGravity(true);
+				FMovementMultiplier = FMath::FInterpTo(FMovementMultiplier, 0.1f, UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), 15.0f);
+			}
+		}
+		else {
+			FVector CapsuleWorldLocation = ACapsule->GetComponentLocation();
+			ACapsule->SetWorldLocation(FVector(CapsuleWorldLocation.X, CapsuleWorldLocation.Y, VLastCapsuleLocation.Z));
+		}
+	}
+	else {
+		BIsFalling = true;
+	}
 }
 
 void APlayerMotionController::TeleportRightPressed()

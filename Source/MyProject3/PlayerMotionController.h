@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Math/Color.h"
+#include "Math/UnrealMathUtility.h"
 #include "GameFramework/Pawn.h"
 #include "Components/SceneComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -56,6 +57,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Exposed)
 	float FMaxStepHeight;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Exposed)
+	float FMaxFloorSlope;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Exposed)
 	float FEyeHeightOffset;
@@ -114,6 +118,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Exposed")
 	FVector FGetCapsuleBottom();
+	
+	UFUNCTION(BlueprintCallable, Category = "Exposed")
+	void FCheckFloor();
 
 	void TeleportRightPressed();
 	void TeleportRightReleased();
