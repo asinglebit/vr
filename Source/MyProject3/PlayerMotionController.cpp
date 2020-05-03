@@ -43,6 +43,9 @@ void APlayerMotionController::PostInitializeComponents() {
 		else if (ComponentName == "Camera") {
 			this->ACamera = CastChecked<UCameraComponent>(component);
 		}
+		else if (ComponentName == "CameraCollision") {
+			this->CameraCollision = CastChecked<USphereComponent>(component);
+		}
 	}
 	
 	// Spawn left hand
@@ -318,6 +321,21 @@ void APlayerMotionController::FCheckCameraOverlap()
 	}
 }
 
+void APlayerMotionController::OnCameraCollisionBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
+{
+	if (!OtherActor->ActorHasTag("IgnoreCameraCollision")) {
+		BIsCameraOverlapping = true;
+		FCameraCollidedTime = UKismetSystemLibrary::GetGameTimeInSeconds(GetWorld());
+	}
+}
+
+void APlayerMotionController::OnCameraCollisionEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	if (!OtherActor->ActorHasTag("IgnoreCameraCollision")) {
+		BIsCameraOverlapping = false;
+	}
+}
+
 void APlayerMotionController::TeleportRightPressed()
 {
 	this->ARightController->FActivateTeleporter();
@@ -363,6 +381,10 @@ void APlayerMotionController::GrabLeftReleased()
 void APlayerMotionController::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// Camera collision events
+	CameraCollision->OnComponentBeginOverlap.AddDynamic(this, &APlayerMotionController::OnCameraCollisionBeginOverlap);
+	CameraCollision->OnComponentEndOverlap.AddDynamic(this, &APlayerMotionController::OnCameraCollisionEndOverlap);
 
 	this->FInitVariables();
 }

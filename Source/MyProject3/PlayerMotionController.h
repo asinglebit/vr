@@ -30,6 +30,7 @@ public:
 
 	UCapsuleComponent* ACapsule;
 	UCameraComponent* ACamera;
+	USphereComponent* CameraCollision;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Exposed)
 	FVector VLastRoomScalePosition;
@@ -130,6 +131,12 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category = "Exposed")
 	void FCheckCameraOverlap();
+	
+	UFUNCTION()
+	void OnCameraCollisionBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION()
+	void OnCameraCollisionEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 	void TeleportRightPressed();
 	void TeleportRightReleased();
