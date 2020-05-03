@@ -25,7 +25,6 @@ class MYPROJECT3_API APlayerMotionController : public APawn
 	virtual void PostInitializeComponents() override;
 
 public:
-	// Sets default values for this pawn's properties
 	APlayerMotionController();
 
 	UCapsuleComponent* ACapsule;
@@ -152,7 +151,6 @@ public:
 	void FExecuteTeleportationDelayed(AHandsMotionController* MotionController);
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 public:	

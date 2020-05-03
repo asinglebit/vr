@@ -16,7 +16,6 @@
 #include "Public/PickupActor.h"
 #include "NavigationSystem.h"
 
-// Sets default values
 AHandsMotionController::AHandsMotionController()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -65,7 +64,6 @@ void AHandsMotionController::PostInitializeComponents() {
 	this->AMotionController->SetTrackingMotionSource(FName(*HandString));
 }
 
-// Called when the game starts or when spawned
 void AHandsMotionController::BeginPlay()
 {
 	Super::BeginPlay();
