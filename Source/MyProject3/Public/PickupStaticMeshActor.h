@@ -23,10 +23,22 @@ public:
 	APickupStaticMeshActor();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Exposed)
+	bool BIsHitValid;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Exposed)
+	bool BIsMixedModeGrabbed;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Exposed)
+	float FHitTime;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Exposed)
 	TSubclassOf<AActor> BPMotionControllerClass;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Exposed)
 	TArray<AActor*> AActorsToIgnore;
+
+	UFUNCTION()
+	void OnComponentHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit);
 
 protected:
 
