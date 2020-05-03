@@ -32,6 +32,12 @@ public:
 	float FHitTime;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Exposed)
+	float FLocationAlpha;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Exposed)
+	FTransform TRelativePickupOffset;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Exposed)
 	TSubclassOf<AActor> BPMotionControllerClass;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Exposed)
