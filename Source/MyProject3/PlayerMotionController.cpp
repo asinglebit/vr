@@ -304,6 +304,20 @@ void APlayerMotionController::FCheckFloor()
 	}
 }
 
+void APlayerMotionController::FCheckCameraOverlap()
+{
+	ACamera->PostProcessSettings.bOverride_SceneColorTint = true;
+	if (BIsCameraOverlapping) {
+		ACamera->PostProcessSettings.SceneColorTint = FLinearColor::Black;
+		if ((UKismetSystemLibrary::GetGameTimeInSeconds(GetWorld()) - FCameraCollidedTime) > 1.0f) {
+			FUpdateActorPosition();
+		}
+	}
+	else {		
+		ACamera->PostProcessSettings.SceneColorTint = FLinearColor::White;
+	}
+}
+
 void APlayerMotionController::TeleportRightPressed()
 {
 	this->ARightController->FActivateTeleporter();
@@ -356,6 +370,13 @@ void APlayerMotionController::BeginPlay()
 void APlayerMotionController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	FTrackPadMovement();
+	FUpdateCapsuleHeight();
+	FCheckFloor();
+	FCheckUpdateActorPosition();
+	FCheckCapsuleSeparation();
+	FCheckCameraOverlap();
+	FUpdateVariables();
 }
 
 void APlayerMotionController::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)

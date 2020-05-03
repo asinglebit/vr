@@ -44,10 +44,16 @@ public:
 	bool BIsLeftStickDown;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Exposed)
+	bool BIsCameraOverlapping;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Exposed)
 	bool BIsFalling;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Exposed)
 	bool BIsCapsuleHit;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Exposed)
+	float FCameraCollidedTime;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Exposed)
 	float FMovementMultiplier;
@@ -121,6 +127,9 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category = "Exposed")
 	void FCheckFloor();
+	
+	UFUNCTION(BlueprintCallable, Category = "Exposed")
+	void FCheckCameraOverlap();
 
 	void TeleportRightPressed();
 	void TeleportRightReleased();
