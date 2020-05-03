@@ -1,6 +1,7 @@
+#include "../Public/PickupStaticMeshActor.h"
+
 #include "Kismet/GameplayStatics.h"
 #include "UObject/ConstructorHelpers.h"
-#include "../Public/PickupStaticMeshActor.h"
 
 APickupStaticMeshActor::APickupStaticMeshActor()
 {
