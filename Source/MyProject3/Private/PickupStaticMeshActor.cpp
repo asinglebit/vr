@@ -34,13 +34,18 @@ void APickupStaticMeshActor::FDropIfLostConnection()
 	if (Difference > 30.0f) {
 		Execute_FDrop(this);
 	}
-
 }
 
 void APickupStaticMeshActor::FDropPhysicsHandle()
 {
 	APhysicsHandle->ReleaseComponent();
 	GetStaticMeshComponent()->SetEnableGravity(true);
+}
+
+void APickupStaticMeshActor::FDropAttachTo()
+{
+	GetStaticMeshComponent()->SetSimulatePhysics(true);
+	DetachFromActor(FDetachmentTransformRules(EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, true));
 }
 
 void APickupStaticMeshActor::BeginPlay()

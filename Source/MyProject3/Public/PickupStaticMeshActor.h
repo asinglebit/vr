@@ -63,6 +63,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Exposed")
 	void FDropPhysicsHandle();
 
+	UFUNCTION(BlueprintCallable, Category = "Exposed")
+	void FDropAttachTo();
+
 protected:
 
 	virtual void BeginPlay() override;
