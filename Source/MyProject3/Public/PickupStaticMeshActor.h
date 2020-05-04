@@ -60,6 +60,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Exposed")
 	void FDropIfLostConnection();
 
+	UFUNCTION(BlueprintCallable, Category = "Exposed")
+	void FDropPhysicsHandle();
+
 protected:
 
 	virtual void BeginPlay() override;

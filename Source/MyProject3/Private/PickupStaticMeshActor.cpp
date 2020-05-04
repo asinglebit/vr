@@ -32,9 +32,15 @@ void APickupStaticMeshActor::FDropIfLostConnection()
 
 	float Difference = (GetStaticMeshComponent()->GetComponentLocation() - AMotionController->GetComponentLocation()).Size();
 	if (Difference > 30.0f) {
-		FDrop();
+		Execute_FDrop(this);
 	}
 
+}
+
+void APickupStaticMeshActor::FDropPhysicsHandle()
+{
+	APhysicsHandle->ReleaseComponent();
+	GetStaticMeshComponent()->SetEnableGravity(true);
 }
 
 void APickupStaticMeshActor::BeginPlay()
