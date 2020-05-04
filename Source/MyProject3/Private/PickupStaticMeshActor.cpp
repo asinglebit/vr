@@ -58,6 +58,53 @@ void APickupStaticMeshActor::FDropMixedMode()
 	FLocationAlpha = 0.0f;
 }
 
+//void APickupStaticMeshActor::FGrabAttachTo()
+//{
+//	GetStaticMeshComponent()->SetCollisionObjectType(ECollisionChannel)
+//}
+//
+//void APickupStaticMeshActor::FPickup_Implementation(USceneComponent* MotionController, UPhysicsHandleComponent* PhysicsHandle)
+//{
+//	if (AMotionController != nullptr) {
+//		IPickupActor::Execute_FDrop(this);
+//	}
+//	AMotionController = MotionController;
+//	APhysicsHandle = PhysicsHandle;
+//	switch (EGrabMethod) {
+//	case EnumGrabMethod::AttachedTo:
+//		FGrabAttachTo();
+//		break;
+//	case EnumGrabMethod::PhysicalHandle:
+//		FGrabPhysicsHandle();
+//		break;
+//	case EnumGrabMethod::Mixed:
+//		FGrabMixedMode();
+//		break;
+//	}
+//}
+
+void APickupStaticMeshActor::FDrop_Implementation()
+{
+	switch (EGrabMethod) {
+	case EnumGrabMethod::AttachedTo:
+		FDropAttachTo();
+		break;
+	case EnumGrabMethod::PhysicalHandle:
+		FDropPhysicsHandle();
+		break;
+	case EnumGrabMethod::Mixed:
+		FDropMixedMode();
+		break;
+	}
+	AMotionController = nullptr;
+	APhysicsHandle = nullptr;
+}
+
+bool APickupStaticMeshActor::FIsHeldByMe_Implementation(USceneComponent * MotionController)
+{
+	return MotionController == AMotionController;
+}
+
 void APickupStaticMeshActor::BeginPlay()
 {
 	Super::BeginPlay();

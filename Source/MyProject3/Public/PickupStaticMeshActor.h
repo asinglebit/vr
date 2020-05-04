@@ -69,6 +69,13 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Exposed")
 	void FDropMixedMode();
 
+	//UFUNCTION(BlueprintCallable, Category = "Exposed")
+	//void FGrabAttachTo();
+
+	//virtual void FPickup_Implementation(USceneComponent* MotionController, UPhysicsHandleComponent* PhysicsHandle) override;
+	virtual void FDrop_Implementation() override;
+	virtual bool FIsHeldByMe_Implementation(USceneComponent* MotionController) override;
+
 protected:
 
 	virtual void BeginPlay() override;
