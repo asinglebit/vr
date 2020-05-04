@@ -58,11 +58,58 @@ void APickupStaticMeshActor::FDropMixedMode()
 	FLocationAlpha = 0.0f;
 }
 
-//void APickupStaticMeshActor::FGrabAttachTo()
-//{
-//	GetStaticMeshComponent()->SetCollisionObjectType(ECollisionChannel)
-//}
-//
+FTransform APickupStaticMeshActor::FGetWorldPickupTransform()
+{
+	FTransform MotionControllerTransform = AMotionController->GetComponentTransform();
+	FVector VX;
+	FVector VY;
+	FVector VZ;
+	UKismetMathLibrary::BreakRotIntoAxes(TRelativePickupOffset.Rotator(), VX, VY, VZ);
+	return FTransform(
+		UKismetMathLibrary::MakeRotationFromAxes(
+			UKismetMathLibrary::TransformDirection(MotionControllerTransform, VX),
+			UKismetMathLibrary::TransformDirection(MotionControllerTransform, VY),
+			UKismetMathLibrary::TransformDirection(MotionControllerTransform, VZ)
+		),
+		UKismetMathLibrary::TransformLocation(MotionControllerTransform, TRelativePickupOffset.GetLocation())
+	);
+}
+
+FTransform APickupStaticMeshActor::FGetRelativePickupTransform()
+{
+	FTransform MotionControllerTransform = AMotionController->GetComponentTransform();
+	FVector VX;
+	FVector VY;
+	FVector VZ;
+	UKismetMathLibrary::BreakRotIntoAxes(GetActorRotation(), VX, VY, VZ);
+	return FTransform(
+		UKismetMathLibrary::MakeRotationFromAxes(
+			UKismetMathLibrary::InverseTransformDirection(MotionControllerTransform, VX),
+			UKismetMathLibrary::InverseTransformDirection(MotionControllerTransform, VY),
+			UKismetMathLibrary::InverseTransformDirection(MotionControllerTransform, VZ)
+		),
+		UKismetMathLibrary::InverseTransformLocation(MotionControllerTransform, GetActorLocation())
+	);
+}
+
+void APickupStaticMeshActor::FGrabAttachTo()
+{
+	GetStaticMeshComponent()->SetCollisionObjectType(ECollisionChannel::ECC_GameTraceChannel2);
+	GetStaticMeshComponent()->SetEnableGravity(false);
+	GetStaticMeshComponent()->SetSimulatePhysics(false);
+	if (BIsMixedModeGrabbed) {
+		FTransform Transform = FGetWorldPickupTransform();
+		GetStaticMeshComponent()->SetWorldLocationAndRotation(
+			Transform.GetLocation(),
+			Transform.GetRotation()
+		);
+	}
+	K2_GetRootComponent()->AttachToComponent(AMotionController, FAttachmentTransformRules(EAttachmentRule::KeepWorld, EAttachmentRule::KeepWorld, EAttachmentRule::KeepWorld, false));
+	if (!BIsMixedModeGrabbed) {
+		TRelativePickupOffset = FGetRelativePickupTransform();
+	}
+}
+
 //void APickupStaticMeshActor::FPickup_Implementation(USceneComponent* MotionController, UPhysicsHandleComponent* PhysicsHandle)
 //{
 //	if (AMotionController != nullptr) {

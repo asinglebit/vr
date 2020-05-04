@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Engine/World.h"
 #include "Engine/StaticMeshActor.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "EnumGrabMethod.h"
 #include "PickupActor.h"
 #include "../HandsMotionController.h"
@@ -69,8 +70,14 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Exposed")
 	void FDropMixedMode();
 
-	//UFUNCTION(BlueprintCallable, Category = "Exposed")
-	//void FGrabAttachTo();
+	UFUNCTION(BlueprintCallable, Category = "Exposed")
+	FTransform FGetWorldPickupTransform();
+
+	UFUNCTION(BlueprintCallable, Category = "Exposed")
+	FTransform FGetRelativePickupTransform();
+
+	UFUNCTION(BlueprintCallable, Category = "Exposed")
+	void FGrabAttachTo();
 
 	//virtual void FPickup_Implementation(USceneComponent* MotionController, UPhysicsHandleComponent* PhysicsHandle) override;
 	virtual void FDrop_Implementation() override;
