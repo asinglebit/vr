@@ -48,6 +48,16 @@ void APickupStaticMeshActor::FDropAttachTo()
 	DetachFromActor(FDetachmentTransformRules(EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, true));
 }
 
+void APickupStaticMeshActor::FDropMixedMode()
+{
+	BIsMixedModeGrabbed = false;
+	FDropPhysicsHandle();
+	FDropAttachTo();
+	GetStaticMeshComponent()->SetCollisionObjectType(ECollisionChannel::ECC_PhysicsBody);
+	GetStaticMeshComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Block);
+	FLocationAlpha = 0.0f;
+}
+
 void APickupStaticMeshActor::BeginPlay()
 {
 	Super::BeginPlay();

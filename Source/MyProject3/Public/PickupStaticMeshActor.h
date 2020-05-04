@@ -66,6 +66,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Exposed")
 	void FDropAttachTo();
 
+	UFUNCTION(BlueprintCallable, Category = "Exposed")
+	void FDropMixedMode();
+
 protected:
 
 	virtual void BeginPlay() override;
