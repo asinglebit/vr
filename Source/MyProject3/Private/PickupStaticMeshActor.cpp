@@ -7,6 +7,8 @@ APickupStaticMeshActor::APickupStaticMeshActor()
 {
 	static ConstructorHelpers::FClassFinder<AHandsMotionController> ActorClassFinder(TEXT("/Game/Blueprints/BP_MotionController"));
 	BPMotionControllerClass = ActorClassFinder.Class;
+
+	EGrabMethod = EnumGrabMethod::Mixed;
 }
 
 void APickupStaticMeshActor::PostInitializeComponents() {
@@ -22,6 +24,17 @@ void APickupStaticMeshActor::OnComponentHit(UPrimitiveComponent* HitComponent, A
 		}
 	}
 	FHitTime = UKismetSystemLibrary::GetGameTimeInSeconds(GetWorld());
+}
+
+void APickupStaticMeshActor::FDropIfLostConnection()
+{
+	if (!AMotionController->IsValidLowLevel()) return;
+
+	float Difference = (GetStaticMeshComponent()->GetComponentLocation() - AMotionController->GetComponentLocation()).Size();
+	if (Difference > 30.0f) {
+		FDrop();
+	}
+
 }
 
 void APickupStaticMeshActor::BeginPlay()

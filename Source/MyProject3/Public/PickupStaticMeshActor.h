@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "Engine/World.h"
 #include "Engine/StaticMeshActor.h"
+#include "EnumGrabMethod.h"
+#include "PickupActor.h"
 #include "../HandsMotionController.h"
 #include "PickupStaticMeshActor.generated.h"
 
@@ -12,7 +14,7 @@
  * 
  */
 UCLASS()
-class MYPROJECT3_API APickupStaticMeshActor : public AStaticMeshActor
+class MYPROJECT3_API APickupStaticMeshActor : public AStaticMeshActor, public IPickupActor
 {
 	GENERATED_BODY()
 
@@ -21,6 +23,15 @@ class MYPROJECT3_API APickupStaticMeshActor : public AStaticMeshActor
 public:
 
 	APickupStaticMeshActor();
+
+	UPROPERTY(Meta = (ExposeOnSpawn = "true"), EditAnywhere, BlueprintReadWrite, Category = Exposed)
+	TEnumAsByte<EnumGrabMethod> EGrabMethod;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Exposed)
+	USceneComponent* AMotionController;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Exposed)
+	UPhysicsHandleComponent* APhysicsHandle;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Exposed)
 	bool BIsHitValid;
@@ -45,6 +56,9 @@ public:
 
 	UFUNCTION()
 	void OnComponentHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit);
+
+	UFUNCTION(BlueprintCallable, Category = "Exposed")
+	void FDropIfLostConnection();
 
 protected:
 
