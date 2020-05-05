@@ -5,10 +5,10 @@
 
 APickupStaticMeshActor::APickupStaticMeshActor()
 {
-	PrimaryActorTick.bCanEverTick = true;
-	PrimaryActorTick.bStartWithTickEnabled = true;
-	PrimaryActorTick.bTickEvenWhenPaused = true;
-	PrimaryActorTick.TickGroup = TG_PrePhysics;
+	//PrimaryActorTick.bCanEverTick = true;
+	//PrimaryActorTick.bStartWithTickEnabled = true;
+	//PrimaryActorTick.bTickEvenWhenPaused = true;
+	//PrimaryActorTick.TickGroup = TG_PrePhysics;
 
 	static ConstructorHelpers::FClassFinder<AHandsMotionController> ActorClassFinder(TEXT("/Game/Blueprints/BP_MotionController"));
 	BPMotionControllerClass = ActorClassFinder.Class;
@@ -35,7 +35,7 @@ void APickupStaticMeshActor::OnComponentHit(UPrimitiveComponent* HitComponent, A
 
 void APickupStaticMeshActor::FDropIfLostConnection()
 {
-	if (!AMotionController->IsValidLowLevel()) return;
+	if (!IsValid(AMotionController)) return;
 
 	float Difference = (GetStaticMeshComponent()->GetComponentLocation() - AMotionController->GetComponentLocation()).Size();
 	if (Difference > 30.0f) {
@@ -144,25 +144,25 @@ void APickupStaticMeshActor::FGrabMixedMode()
 	IsGateBOpen = true;
 }
 
-//void APickupStaticMeshActor::FPickup_Implementation(USceneComponent* MotionController, UPhysicsHandleComponent* PhysicsHandle)
-//{
-//	if (AMotionController->IsValidLowLevel()) {
-//		IPickupActor::Execute_FDrop(this);
-//	}
-//	AMotionController = MotionController;
-//	APhysicsHandle = PhysicsHandle;
-//	switch (EGrabMethod) {
-//	case EnumGrabMethod::AttachedTo:
-//		FGrabAttachTo();
-//		break;
-//	case EnumGrabMethod::PhysicalHandle:
-//		FGrabPhysicsHandle();
-//		break;
-//	case EnumGrabMethod::Mixed:
-//		FGrabMixedMode();
-//		break;
-//	}
-//}
+void APickupStaticMeshActor::FPickup_Implementation(USceneComponent* MotionController, UPhysicsHandleComponent* PhysicsHandle)
+{
+	if (IsValid(AMotionController)) {
+		IPickupActor::Execute_FDrop(this);
+	}
+	AMotionController = MotionController;
+	APhysicsHandle = PhysicsHandle;
+	switch (EGrabMethod) {
+	case EnumGrabMethod::AttachedTo:
+		FGrabAttachTo();
+		break;
+	case EnumGrabMethod::PhysicalHandle:
+		FGrabPhysicsHandle();
+		break;
+	case EnumGrabMethod::Mixed:
+		FGrabMixedMode();
+		break;
+	}
+}
 
 void APickupStaticMeshActor::FDrop_Implementation()
 {
@@ -186,74 +186,74 @@ bool APickupStaticMeshActor::FIsHeldByMe_Implementation(USceneComponent * Motion
 	return MotionController == AMotionController;
 }
 
-void APickupStaticMeshActor::Tick(float DeltaTime)
-{
-	/*if (EGrabMethod == EnumGrabMethod::AttachedTo) return;
-
-	FDropIfLostConnection();
-
-	if (EGrabMethod == EnumGrabMethod::PhysicalHandle) return;
-	if (!AMotionController->IsValidLowLevel()) return;
-
-	const TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes = {
-		UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_WorldStatic),
-		UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_WorldDynamic),
-		UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_PhysicsBody),
-		UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel2)
-	};
-	TArray<UPrimitiveComponent*> OutComponents;
-	const bool IsOverlapping = UKismetSystemLibrary::ComponentOverlapComponents(
-		GetStaticMeshComponent(),
-		GetStaticMeshComponent()->GetComponentTransform(),
-		ObjectTypes,
-		nullptr,
-		AActorsToIgnore,
-		OutComponents
-	);
-
-	if (IsOverlapping) {
-		if (IsGateAOpen) {
-			IsGateAOpen = false;
-			FDropAttachTo();
-			FGrabPhysicsHandle();
-			IsGateBOpen = true;
-		}
-	}
-	else {
-		const float GameTime = UKismetSystemLibrary::GetGameTimeInSeconds(GetWorld());
-		if ((GameTime - FHitTime) >= 0.1f) {
-			if (FLocationAlpha > 1.0f) {
-				if (IsGateBOpen) {
-					IsGateBOpen = false;
-					FDropPhysicsHandle();
-					FGrabAttachTo();
-					IsGateAOpen = true;
-				}
-			}
-			else {
-				FLocationAlpha = GameTime * 10.0f + FLocationAlpha;
-
-				FVector Axyz = GetStaticMeshComponent()->GetComponentTransform().GetLocation();
-				FVector Bxyz = FGetWorldPickupTransform().GetLocation();
-
-				float x = UKismetMathLibrary::Lerp(Axyz.X, Bxyz.X, FLocationAlpha);
-				float y = UKismetMathLibrary::Lerp(Axyz.Y, Bxyz.Y, FLocationAlpha);
-				float z = UKismetMathLibrary::Lerp(Axyz.Z, Bxyz.Z, FLocationAlpha);
-
-				FVector NewLocation = FVector(x, y, z);
-				FQuat NewRotation = FMath::Lerp(
-					GetStaticMeshComponent()->GetComponentTransform().GetRotation(),
-					FGetWorldPickupTransform().GetRotation(),
-					FLocationAlpha
-				);
-				GetStaticMeshComponent()->SetWorldLocationAndRotation(
-					NewLocation,
-					NewRotation
-				);
-			}
-		}
-	}*/
-}
+//void APickupStaticMeshActor::Tick(float DeltaTime)
+//{
+//	if (EGrabMethod == EnumGrabMethod::AttachedTo) return;
+//
+//	FDropIfLostConnection();
+//
+//	if (EGrabMethod == EnumGrabMethod::PhysicalHandle) return;
+//	if (!IsValid(AMotionController)) return;
+//
+//	const TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes = {
+//		UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_WorldStatic),
+//		UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_WorldDynamic),
+//		UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_PhysicsBody),
+//		UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel2)
+//	};
+//	TArray<UPrimitiveComponent*> OutComponents;
+//	const bool IsOverlapping = UKismetSystemLibrary::ComponentOverlapComponents(
+//		GetStaticMeshComponent(),
+//		GetStaticMeshComponent()->GetComponentTransform(),
+//		ObjectTypes,
+//		nullptr,
+//		AActorsToIgnore,
+//		OutComponents
+//	);
+//
+//	if (IsOverlapping) {
+//		if (IsGateAOpen) {
+//			IsGateAOpen = false;
+//			FDropAttachTo();
+//			FGrabPhysicsHandle();
+//			IsGateBOpen = true;
+//		}
+//	}
+//	else {
+//		const float GameTime = UKismetSystemLibrary::GetGameTimeInSeconds(GetWorld());
+//		if ((GameTime - FHitTime) >= 0.1f) {
+//			if (FLocationAlpha > 1.0f) {
+//				if (IsGateBOpen) {
+//					IsGateBOpen = false;
+//					FDropPhysicsHandle();
+//					FGrabAttachTo();
+//					IsGateAOpen = true;
+//				}
+//			}
+//			else {
+//				FLocationAlpha = GameTime * 10.0f + FLocationAlpha;
+//
+//				FVector Axyz = GetStaticMeshComponent()->GetComponentTransform().GetLocation();
+//				FVector Bxyz = FGetWorldPickupTransform().GetLocation();
+//
+//				float x = UKismetMathLibrary::Lerp(Axyz.X, Bxyz.X, FLocationAlpha);
+//				float y = UKismetMathLibrary::Lerp(Axyz.Y, Bxyz.Y, FLocationAlpha);
+//				float z = UKismetMathLibrary::Lerp(Axyz.Z, Bxyz.Z, FLocationAlpha);
+//
+//				FVector NewLocation = FVector(x, y, z);
+//				FQuat NewRotation = FMath::Lerp(
+//					GetStaticMeshComponent()->GetComponentTransform().GetRotation(),
+//					FGetWorldPickupTransform().GetRotation(),
+//					FLocationAlpha
+//				);
+//				GetStaticMeshComponent()->SetWorldLocationAndRotation(
+//					NewLocation,
+//					NewRotation
+//				);
+//			}
+//		}
+//	}
+//}
 
 void APickupStaticMeshActor::BeginPlay()
 {
