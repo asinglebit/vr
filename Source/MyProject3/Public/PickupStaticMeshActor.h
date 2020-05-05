@@ -35,6 +35,12 @@ public:
 	UPhysicsHandleComponent* APhysicsHandle;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Exposed)
+	bool IsGateAOpen;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Exposed)
+	bool IsGateBOpen;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Exposed)
 	bool BIsHitValid;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Exposed)
@@ -82,11 +88,17 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Exposed")
 	void FGrabPhysicsHandle();
 
-	//virtual void FPickup_Implementation(USceneComponent* MotionController, UPhysicsHandleComponent* PhysicsHandle) override;
+	UFUNCTION(BlueprintCallable, Category = "Exposed")
+	void FGrabMixedMode();
+
+	virtual void FPickup_Implementation(USceneComponent* MotionController, UPhysicsHandleComponent* PhysicsHandle) override;
 	virtual void FDrop_Implementation() override;
 	virtual bool FIsHeldByMe_Implementation(USceneComponent* MotionController) override;
+
+	virtual void Tick(float DeltaTime) override;
 
 protected:
 
 	virtual void BeginPlay() override;
+
 };
