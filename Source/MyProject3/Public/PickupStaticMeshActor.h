@@ -95,7 +95,7 @@ public:
 	virtual void FDrop_Implementation() override;
 	virtual bool FIsHeldByMe_Implementation(USceneComponent* MotionController) override;
 
-	//virtual void Tick(float DeltaTime) override;
+	virtual void Tick(float DeltaTime) override;
 
 protected:
 
