@@ -144,25 +144,25 @@ void APickupStaticMeshActor::FGrabMixedMode()
 	IsGateBOpen = true;
 }
 
-void APickupStaticMeshActor::FPickup_Implementation(USceneComponent* MotionController, UPhysicsHandleComponent* PhysicsHandle)
-{
-	if (AMotionController->IsValidLowLevel()) {
-		IPickupActor::Execute_FDrop(this);
-	}
-	AMotionController = MotionController;
-	APhysicsHandle = PhysicsHandle;
-	switch (EGrabMethod) {
-	case EnumGrabMethod::AttachedTo:
-		FGrabAttachTo();
-		break;
-	case EnumGrabMethod::PhysicalHandle:
-		FGrabPhysicsHandle();
-		break;
-	case EnumGrabMethod::Mixed:
-		FGrabMixedMode();
-		break;
-	}
-}
+//void APickupStaticMeshActor::FPickup_Implementation(USceneComponent* MotionController, UPhysicsHandleComponent* PhysicsHandle)
+//{
+//	if (AMotionController->IsValidLowLevel()) {
+//		IPickupActor::Execute_FDrop(this);
+//	}
+//	AMotionController = MotionController;
+//	APhysicsHandle = PhysicsHandle;
+//	switch (EGrabMethod) {
+//	case EnumGrabMethod::AttachedTo:
+//		FGrabAttachTo();
+//		break;
+//	case EnumGrabMethod::PhysicalHandle:
+//		FGrabPhysicsHandle();
+//		break;
+//	case EnumGrabMethod::Mixed:
+//		FGrabMixedMode();
+//		break;
+//	}
+//}
 
 void APickupStaticMeshActor::FDrop_Implementation()
 {

@@ -91,7 +91,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Exposed")
 	void FGrabMixedMode();
 
-	virtual void FPickup_Implementation(USceneComponent* MotionController, UPhysicsHandleComponent* PhysicsHandle) override;
+	//virtual void FPickup_Implementation(USceneComponent* MotionController, UPhysicsHandleComponent* PhysicsHandle) override;
 	virtual void FDrop_Implementation() override;
 	virtual bool FIsHeldByMe_Implementation(USceneComponent* MotionController) override;
 
