@@ -79,6 +79,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Exposed")
 	void FGrabAttachTo();
 
+	UFUNCTION(BlueprintCallable, Category = "Exposed")
+	void FGrabPhysicsHandle();
+
 	//virtual void FPickup_Implementation(USceneComponent* MotionController, UPhysicsHandleComponent* PhysicsHandle) override;
 	virtual void FDrop_Implementation() override;
 	virtual bool FIsHeldByMe_Implementation(USceneComponent* MotionController) override;

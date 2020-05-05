@@ -110,6 +110,20 @@ void APickupStaticMeshActor::FGrabAttachTo()
 	}
 }
 
+void APickupStaticMeshActor::FGrabPhysicsHandle()
+{
+	FTransform MotionControllerTransform = AMotionController->GetComponentTransform();
+	APhysicsHandle->GrabComponentAtLocationWithRotation(
+		GetStaticMeshComponent(),
+		FName(),
+		MotionControllerTransform.GetLocation(),
+		MotionControllerTransform.Rotator()
+	);
+	GetStaticMeshComponent()->SetEnableGravity(false);
+	GetStaticMeshComponent()->SetSimulatePhysics(true);
+	GetStaticMeshComponent()->SetCollisionObjectType(ECollisionChannel::ECC_PhysicsBody);
+	FLocationAlpha = 0.0f;
+}
 //void APickupStaticMeshActor::FPickup_Implementation(USceneComponent* MotionController, UPhysicsHandleComponent* PhysicsHandle)
 //{
 //	if (AMotionController != nullptr) {
